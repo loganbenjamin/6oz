@@ -498,11 +498,7 @@ var __unescapeHTML = function (rawValue) {
 			if (scopedValueResult && scopedValueResult.length > 1 && scopedValueResult[1]) {
 				var scopedValue = scopedValueResult[1];
 				
-				if (_dataRegister[scopedValue]) {
-					attributes[key] = _dataRegister[scopedValue];
-				} else {
-					attributes[key] = undefined;
-				}
+				attributes[key] = _dataRegister[scopedValue];
 			} else {
 				attributes[key] = attributeValue;
 			}
