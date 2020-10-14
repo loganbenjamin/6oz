@@ -372,9 +372,39 @@ var __unescapeHTML = function (rawValue) {
 						renderFunctionBody.push('IncrementalDOM.elementClose("' + cLexValue + '");');
 					}
 				} else if (thisIsComponentTag && !weAreSkippingNodes) {
-					var componentResults = processComponent(cLex);
+					var componentResults;
 
-					if (componentResults === false) {
+					if (!cLex.closeStart && !cLex.closeEnd) {
+						i++;
+						var slotStart = i;
+						var slotNodeLevel = 1;
+
+						for (; i < l && slotNodeLevel > 0; i++) {
+							var cLexSlot = lexResults[i];
+							var cLexSlotValue = cLexSlot.value;
+
+							if (cLexValue == cLexSlotValue) {
+								if (!cLexSlot.closeStart && !cLexSlot.closeEnd) {
+									slotNodeLevel++;
+								} else if (cLexSlot.closeStart) {
+									slotNodeLevel--;
+								}
+							}
+						}
+
+						if (slotNodeLevel > 0) {
+							_logger.warn(LOG_PREFIX + "No closing tag for component " + cLexValue + ".");
+							i = slotStart - 1;
+							componentResults = processComponent(cLex);
+						} else {
+							i--;
+							componentResults = processComponent(cLex, lexResults.slice(slotStart, i));
+						}
+					} else if(!cLex.closeStart) {
+						componentResults = processComponent(cLex);
+					}
+
+					if (!componentResults) {
 						continue;
 					}
 
@@ -477,7 +507,7 @@ var __unescapeHTML = function (rawValue) {
 		tagAttributesString = tagAttributes.length > 0 ? ',' + tagAttributes.join(',') : "";
 		return { "elementType": elementType, "tagAttributesString": tagAttributesString, "elementKeyID": elementKeyID };
 	}
-	function processComponent(cLex) {
+	function processComponent(cLex, slot) {
 		var componentName = cLex.value.toLowerCase();
 		var componentDetails = _components[componentName];
 		
@@ -528,6 +558,16 @@ var __unescapeHTML = function (rawValue) {
 
 		if (componentController !== undefined) {
 			attributes.controller = componentController;
+		}
+
+		if (slot) {
+			for (var i = 0, l = lexResults.length; i < l; i++) {
+				if (lexResults[i].value == "slot") {
+					lexResults = lexResults.slice(0, i).concat(slot, lexResults.slice(i + 1))
+					i += slot.length - 1;
+					l += slot.length - 1;
+				}
+			}
 		}
 
 		return processLexTemplate(lexResults, attributes, "o");
