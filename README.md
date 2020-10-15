@@ -220,11 +220,65 @@ Accessing the data passed into the component within the template is simple.  Jus
 <ul>
 <% var arr = props.customData.arrayOfStuff;
 for (var i = 0, l = arr.length; i < l; i++) { %>
-<li><%=arr[i] %></li>
+	<li><%=arr[i] %></li>
 <% } %>
 </ul>
 ```
 
+### Slots
+6oz.js allows you to put a slot into a component, which then fills the slot with the contents inside the component.
+
+_Below is template code_
+```
+<my-component title="Hello">
+	World
+</my-component>
+```
+
+_Component my-component with slot_
+```
+<div>
+	<h1>{props.title}</h1>
+	<slot />
+</div>
+```
+
+_Resulting html_
+```
+<div>
+	<h1>Hello</h1>
+	World
+</div>
+```
+
+_Below is a full working example_
+```
+var template =
+  '<% for(var article of articles) { %>' +
+  '  <demo-section title={article.title}>' +
+  '    <%= article.content %>' +
+  '  </demo-section>' +
+  '<% } %>';
+
+var demoSection =
+  '<div class="section">' +
+  '  <demo-header title={props.title + ":"} />' +
+  '  <slot />' +
+  '</div>';
+
+var demoHeader = '<h1><%: props.title %></h1>';
+
+var templateData = { data: { articles: [
+  { title: "Hello World" , content: "<b>Introduction</b><br />This is an introduction on how slots work." },
+  { title: "loganbenjamin" , content: "Contributed this awesome slots code to 6oz." },
+  { title: "pmoon00" , content: "Made this awesome 6oz library." },
+]} };
+
+__6oz.addComponent({ "componentName": "demo-section", "template": demoSection });
+__6oz.addComponent({ "componentName": "demo-header", "template": demoHeader });
+
+page = __6oz.applyToDOM(document.getElementById("app"), template, templateData);
+```
 ## FAQ
 ### Unusual rendering and event bindings are occurring
 This can occur when the Incremental DOM library cannot discern the difference between two elements in updates.  This can occur if the DOM structure is similar in two different templates.  To resolve this, place a key-id on the top level element that is having issues.  Refer to Lists (key-id) above in README.
