@@ -269,7 +269,7 @@ var demoSection =
 var demoHeader = '<h1><%: props.title %></h1>';
 
 var templateData = { data: { articles: [
-  { title: "Hello World" , content: "<b>Introduction</b><br />This is an introduction on how slots work." },
+  { title: "Hello World" , content: "<b>Introduction</b><br />This is an introduction on slots." },
   { title: "loganbenjamin" , content: "Contributed this awesome slots code to 6oz." },
   { title: "pmoon00" , content: "Made this awesome 6oz library." },
 ]} };
